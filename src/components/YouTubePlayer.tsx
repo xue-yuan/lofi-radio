@@ -60,14 +60,10 @@ const YouTubePlayer: Component = () => {
         player.setVolume(playerState.volume);
         if (playerState.isMuted) player.mute();
 
-        // Initial State Check:
-        // If the player is already CUED or PAUSED, we are "loaded".
-        // onPlayerStateChange might not fire if we start in this state.
         const state = player.getPlayerState();
         console.log("Player Ready. Initial State:", state);
 
         if (state === 5 || state === 2 || state === -1) {
-            // 5=CUED, 2=PAUSED, -1=UNSTARTED (Usually means loaded but not played)
             setLoading(false);
         }
 
@@ -76,22 +72,20 @@ const YouTubePlayer: Component = () => {
 
     const onPlayerStateChange = (event: any) => {
         console.log("Player State Change:", event.data);
-        // 1 = PLAYING, 2 = PAUSED, 3 = BUFFERING, 5 = CUED
         const state = event.data;
 
-        if (state === 1) { // PLAYING
+        if (state === 1) {
             setLoading(false);
             if (!playerState.isPlaying) setPlaying(true);
         }
         else if (state === 3) {
             setLoading(true);
         }
-        else if (state === 5) { // CUED (Video loaded and ready)
+        else if (state === 5) {
             setLoading(false);
             if (playerState.isPlaying) player.playVideo();
         }
-        else if (state === 2) { // PAUSED
-            // If we are paused, we are definitely 'loaded' enough to not show a spinner
+        else if (state === 2) {
             setLoading(false);
             if (playerState.isPlaying) {
                 console.log("Auto-resuming playback...");

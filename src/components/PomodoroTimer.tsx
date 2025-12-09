@@ -1,19 +1,16 @@
-import { createSignal, onCleanup, createEffect, type Component, For } from "solid-js";
+import { createSignal, onCleanup, createEffect, on, untrack, type Component, For } from "solid-js";
 
 interface Stage {
-    id: string; // Unique ID for list management
+    id: string;
     type: 'focus' | 'break' | 'long-break';
     name: string;
 }
 
 const PomodoroTimer: Component = () => {
-    // Customization State
     const [focusTime, setFocusTime] = createSignal(25);
     const [shortBreakTime, setShortBreakTime] = createSignal(5);
     const [longBreakTime, setLongBreakTime] = createSignal(15);
     const [isSettingsOpen, setIsSettingsOpen] = createSignal(false);
-
-    // Initial default timeline
     const defaultTimeline: Stage[] = [
         { id: '1', type: 'focus', name: 'Focus' },
         { id: '2', type: 'break', name: 'Short Break' },
@@ -23,10 +20,7 @@ const PomodoroTimer: Component = () => {
         { id: '6', type: 'long-break', name: 'Long Break' },
     ];
     const [timeline, setTimeline] = createSignal<Stage[]>(defaultTimeline);
-
-    // Timer State
     const [currentStageIndex, setCurrentStageIndex] = createSignal(0);
-    // Initialize with safe default
     const [timeLeft, setTimeLeft] = createSignal(25 * 60);
     const [isActive, setIsActive] = createSignal(false);
     const [autoStart, setAutoStart] = createSignal(false);
@@ -46,20 +40,16 @@ const PomodoroTimer: Component = () => {
 
     const currentStage = () => {
         const t = timeline();
-        if (t.length === 0) return { name: 'Focus', type: 'focus', duration: focusTime() }; // Fallback
+        if (t.length === 0) return { name: 'Focus', type: 'focus', duration: focusTime() };
         const stage = t[currentStageIndex() % t.length];
         return { ...stage, duration: getDuration(stage.type) };
     };
 
-    // Update timeLeft when duration settings change or stage changes, ONLY if not active
-    createEffect(() => {
-        // Dependencies
-        focusTime(); shortBreakTime(); longBreakTime(); timeline();
-
-        if (!isActive()) {
+    createEffect(on([focusTime, shortBreakTime, longBreakTime, timeline, currentStageIndex], () => {
+        if (!untrack(isActive)) {
             setTimeLeft(currentStage().duration * 60);
         }
-    });
+    }));
 
     const requestNotificationPermission = async () => {
         if (!("Notification" in window)) return;
@@ -96,7 +86,6 @@ const PomodoroTimer: Component = () => {
         const nextIndex = (currentStageIndex() + 1) % t.length;
         setCurrentStageIndex(nextIndex);
 
-        // Calculate duration based on the new stage type
         const nextStageObj = t[nextIndex];
         const duration = getDuration(nextStageObj.type);
         setTimeLeft(duration * 60);
@@ -140,7 +129,6 @@ const PomodoroTimer: Component = () => {
     };
 
     const toggleTimer = async () => {
-        // If empty timeline, do nothing
         if (timeline().length === 0) return;
 
         if (!isActive()) {
@@ -168,7 +156,6 @@ const PomodoroTimer: Component = () => {
         setTimeLeft(currentStage().duration * 60);
     };
 
-    // Timeline Editor Actions
     const addStage = (type: 'focus' | 'break' | 'long-break', name: string) => {
         const newStage: Stage = {
             id: Date.now().toString() + Math.random(),
@@ -179,21 +166,37 @@ const PomodoroTimer: Component = () => {
     };
 
     const removeStage = (id: string, index: number) => {
-        // Prevent deleting the currently active stage to avoid logic errors
-        if (index === currentStageIndex()) return;
-
         const newTimeline = timeline().filter(s => s.id !== id);
+
+        if (newTimeline.length === 0) {
+            setTimeline([]);
+            setIsActive(false);
+            clearInterval(timerInterval);
+            setTimeLeft(0);
+            setCurrentStageIndex(0);
+            return;
+        }
+
         setTimeline(newTimeline);
 
-        // Adjust index if we removed a stage before the current one
-        if (index < currentStageIndex()) {
+        if (index === currentStageIndex()) {
+            if (index >= newTimeline.length) {
+                setCurrentStageIndex(0);
+            }
+            setIsActive(false);
+            clearInterval(timerInterval);
+            const t = newTimeline;
+            const newStage = t[currentStageIndex() % t.length];
+            const duration = getDuration(newStage.type);
+            setTimeLeft(duration * 60);
+
+        } else if (index < currentStageIndex()) {
             setCurrentStageIndex(currentStageIndex() - 1);
         }
     };
 
     return (
         <div class="card glass w-80 shadow-xl border border-white/10 flex flex-col relative overflow-hidden transition-all duration-300 min-h-[280px]">
-            {/* Settings View Overlay */}
             <div class={`absolute inset-0 bg-base-300/95 z-20 transition-transform duration-300 p-4 flex flex-col gap-3 ${isSettingsOpen() ? 'translate-x-0' : 'translate-x-full'}`}>
                 <div class="flex justify-between items-center mb-1 border-b border-white/10 pb-2">
                     <span class="text-xs font-bold uppercase tracking-widest text-white">Timer Settings</span>
@@ -201,7 +204,6 @@ const PomodoroTimer: Component = () => {
                 </div>
 
                 <div class="flex-1 overflow-y-auto custom-scrollbar pr-1 flex flex-col gap-4">
-                    {/* Durations */}
                     <div class="space-y-3">
                         <div class="flex flex-col gap-1">
                             <div class="flex justify-between text-[10px] text-white/60"><span>Focus</span><span>{focusTime()}m</span></div>
@@ -219,7 +221,6 @@ const PomodoroTimer: Component = () => {
 
                     <div class="divider my-0 opacity-50"></div>
 
-                    {/* Timeline Editor */}
                     <div class="flex flex-col gap-2">
                         <span class="text-[10px] uppercase font-bold text-white/40">Sequence</span>
                         <div class="flex flex-col gap-1 max-h-[120px] overflow-y-auto custom-scrollbar p-1 bg-black/20 rounded-box">
@@ -233,9 +234,8 @@ const PomodoroTimer: Component = () => {
                                             {i() === currentStageIndex() && <span class="text-[8px] uppercase bg-white/20 px-1 rounded text-white/60 ml-2">Active</span>}
                                         </div>
                                         <button
-                                            class={`btn btn-xs btn-ghost btn-square text-error ${i() === currentStageIndex() ? 'opacity-0 group-hover:opacity-100 cursor-not-allowed' : 'opacity-20'}`}
+                                            class="btn btn-xs btn-ghost btn-square text-error opacity-40 hover:opacity-100"
                                             onClick={() => removeStage(stage.id, i())}
-                                            disabled={i() === currentStageIndex()}
                                         >×</button>
                                     </div>
                                 )}
@@ -251,15 +251,18 @@ const PomodoroTimer: Component = () => {
             </div>
 
             <div class="card-body p-4 flex flex-col h-full gap-4 justify-between">
-                {/* Header Section */}
                 <div class="flex flex-col gap-2">
                     <div class="flex justify-between items-center">
                         <div class="flex items-center gap-2">
+                            <div class={`badge badge-xs transition-all duration-300 ${isActive()
+                                ? 'badge-success animate-pulse shadow-[0_0_10px_#22c55e]'
+                                : timeLeft() < currentStage().duration * 60
+                                    ? 'badge-error shadow-[0_0_10px_#fa0000]'
+                                    : 'badge-ghost opacity-50'
+                                }`}></div>
                             <span class={`text-xs font-bold uppercase tracking-widest ${currentStage().type === 'focus' ? 'text-primary' : currentStage().type === 'break' ? 'text-secondary' : 'text-accent'}`}>
                                 {currentStage().name}
                             </span>
-                            {/* Fixed Badge: Ghost when inactive, Success+Pulse when active */}
-                            <div class={`badge badge-xs transition-all duration-300 ${isActive() ? 'badge-success animate-pulse shadow-[0_0_10px_#22c55e]' : 'badge-ghost opacity-50'}`}></div>
                         </div>
 
                         <div class="flex items-center gap-1">
@@ -270,13 +273,11 @@ const PomodoroTimer: Component = () => {
                                 checked={autoStart()}
                                 onChange={(e) => setAutoStart(e.currentTarget.checked)}
                             />
-                            {/* Settings Button */}
                             <button class="btn btn-xs btn-ghost btn-circle text-white/50 hover:text-white ml-1" onClick={() => setIsSettingsOpen(true)}>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                             </button>
                         </div>
                     </div>
-                    {/* Progress Dots */}
                     <div class="flex justify-between gap-1 overflow-x-auto custom-scrollbar pb-1">
                         <For each={timeline()}>
                             {(s, i) => (
@@ -290,7 +291,6 @@ const PomodoroTimer: Component = () => {
                     </div>
                 </div>
 
-                {/* Timer Display */}
                 <div class="text-center py-2 relative group flex-1 flex items-center justify-center">
                     <span class={`countdown font-mono text-6xl text-white`}>
                         <span style={{ "--value": Math.floor(Math.floor(timeLeft() / 60) / 10) } as any}></span>
@@ -300,7 +300,6 @@ const PomodoroTimer: Component = () => {
                     </span>
                 </div>
 
-                {/* Controls */}
                 <div class="flex gap-2 justify-center">
                     <button
                         class={`btn btn-sm flex-1 ${isActive()

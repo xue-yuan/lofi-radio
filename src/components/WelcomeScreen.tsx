@@ -11,7 +11,6 @@ const WelcomeScreen: Component<WelcomeScreenProps> = (props) => {
             onClick={props.onStart}
         >
             <div class="text-center space-y-8 animate-fade-in-up">
-                {/* Logo / Branding */}
                 <div class="space-y-2">
                     <h1 class="text-6xl md:text-8xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-br from-white to-white/50 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
                         LOFI
@@ -29,7 +28,6 @@ const WelcomeScreen: Component<WelcomeScreenProps> = (props) => {
                             Click to Tune In
                         </span>
 
-                        {/* Pulse Ring */}
                         <div class="absolute inset-0 rounded-full border border-white/30 animate-ping opacity-20"></div>
                     </button>
                 </div>

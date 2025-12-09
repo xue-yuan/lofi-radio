@@ -19,14 +19,10 @@ const App: Component = () => {
   const [isIdle, setIsIdle] = createSignal(false);
   const [isImmersiveEnabled, setIsImmersiveEnabled] = createSignal(false);
 
-  // New: Welcome Screen State
   const [hasStarted, setHasStarted] = createSignal(false);
 
-  // Handle "Tune In" - Unlock Audio Context
   const handleStart = () => {
     setHasStarted(true);
-    // Force Unmute (Browser allows this because it's a user gesture)
-    // We set the store state, and YouTubePlayer effect will pick it up
     setPlayerState('isMuted', false);
     setPlayerState('isPlaying', true);
   };
@@ -108,10 +104,8 @@ const App: Component = () => {
         <WelcomeScreen onStart={handleStart} />
       </Show>
 
-      {/* Background Player */}
       <YouTubePlayer />
 
-      {/* Center Logo / Title (overlay) */}
       <div class={`absolute top-10 left-10 z-10 flex flex-col gap-6 transition-opacity duration-1000 ${isIdle() ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         <h1 class="text-4xl font-bold tracking-widest text-shadow opacity-90 bg-black/30 backdrop-blur-sm p-4 rounded-xl border border-white/10">
           LOFI <span class="text-primary">RADIO</span>
