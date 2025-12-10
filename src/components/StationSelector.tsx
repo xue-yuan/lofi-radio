@@ -31,7 +31,7 @@ const StationSelector: Component<StationSelectorProps> = (props) => {
 
     return (
         <div
-            class={`fixed bottom-36 left-8 z-40 transition-all duration-300 origin-bottom-left ${props.isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4 pointer-events-none'}`}
+            class={`absolute bottom-full mb-8 left-1/2 -translate-x-1/2 z-40 transition-all duration-300 origin-bottom ${props.isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4 pointer-events-none'}`}
         >
             <div class="w-[300px] h-[400px] bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
 

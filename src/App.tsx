@@ -2,17 +2,20 @@ import { createSignal, createEffect, Show, onMount, onCleanup, type Component } 
 import { playerState, toggleMute, setVolume, setPlayerState } from './stores/playerStore';
 import YouTubePlayer from './components/YouTubePlayer';
 import ControlPanel from './components/ControlPanel';
-import WidgetPanel from './components/WidgetPanel';
-import AmbientMixer from './components/AmbientMixer';
 import DigitalClock from './components/DigitalClock';
 import WelcomeScreen from './components/WelcomeScreen';
-import StationSelector from './components/StationSelector';
+
+import Sidebar from './components/Sidebar';
+
+import Header from './components/Header';
 
 const App: Component = () => {
-  const [activePanel, setActivePanel] = createSignal<'station' | 'ambient' | 'widgets' | null>(null);
+  const [activePanel, setActivePanel] = createSignal<'station' | 'ambient' | 'widgets' | 'theme' | null>(null);
   const [isIdle, setIsIdle] = createSignal(false);
   const [isImmersiveEnabled, setIsImmersiveEnabled] = createSignal(false);
 
+  const savedTheme = localStorage.getItem('lofi_theme') || 'luxury';
+  const [activeTheme, setActiveTheme] = createSignal(savedTheme);
   const [hasStarted, setHasStarted] = createSignal(false);
 
   const handleStart = () => {
@@ -21,8 +24,13 @@ const App: Component = () => {
     setPlayerState('isPlaying', true);
   };
 
-  const togglePanel = (panel: 'station' | 'ambient' | 'widgets') => {
+  const togglePanel = (panel: 'station' | 'ambient' | 'widgets' | 'theme') => {
     setActivePanel(prev => prev === panel ? null : panel);
+  };
+
+  const handleThemeChange = (theme: string) => {
+    setActiveTheme(theme);
+    localStorage.setItem('lofi_theme', theme);
   };
 
   onMount(() => {
@@ -91,18 +99,21 @@ const App: Component = () => {
   });
 
   return (
-    <div class="w-full h-full relative" data-theme="luxury">
+    <div class="w-full h-full relative" data-theme={activeTheme()}>
       <Show when={!hasStarted()}>
         <WelcomeScreen onStart={handleStart} />
       </Show>
 
+      <div class={`transition-opacity duration-1000 ${isIdle() ? 'opacity-0 pointer-events-none' : 'opacity-100 z-50 relative'}`}>
+        <Sidebar />
+      </div>
+
       <YouTubePlayer />
 
-      <div class={`absolute top-10 left-10 z-10 flex flex-col gap-6 transition-opacity duration-1000 ${isIdle() ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-        <h1 class="text-4xl font-bold tracking-widest text-shadow opacity-90 bg-black/30 backdrop-blur-sm p-4 rounded-xl border border-white/10">
-          LOFI <span class="text-primary">RADIO</span>
-        </h1>
-        <div class="hidden md:block"></div>
+      <div class="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_center,transparent_55%,rgba(0,0,0,0.8)_100%)]"></div>
+
+      <div class={`absolute top-10 left-10 z-10 transition-opacity duration-1000 ${isIdle() ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+        <Header />
       </div>
 
       <div class={`absolute top-10 right-10 z-10 transition-opacity duration-1000 ${isIdle() ? 'opacity-0' : 'opacity-80'}`}>
@@ -110,28 +121,27 @@ const App: Component = () => {
       </div>
 
       <div class={`transition-opacity duration-1000 ${isIdle() ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-        <StationSelector
-          isOpen={activePanel() === 'station'}
-          onClose={() => setActivePanel(null)}
-        />
-        <AmbientMixer
-          isOpen={activePanel() === 'ambient'}
-          onClose={() => setActivePanel(null)}
-        />
-        <WidgetPanel
-          isOpen={activePanel() === 'widgets'}
-          onClose={() => setActivePanel(null)}
-        />
-
         <ControlPanel
           onToggleAmbient={() => togglePanel('ambient')}
           isAmbientOpen={activePanel() === 'ambient'}
+          onCloseAmbient={() => setActivePanel(null)}
+
           isImmersive={isImmersiveEnabled()}
           onToggleImmersive={() => setIsImmersiveEnabled(!isImmersiveEnabled())}
+
           onToggleStationSelector={() => togglePanel('station')}
           isStationSelectorOpen={activePanel() === 'station'}
+          onCloseStationSelector={() => setActivePanel(null)}
+
           onToggleWidgets={() => togglePanel('widgets')}
           isWidgetsOpen={activePanel() === 'widgets'}
+          onCloseWidgets={() => setActivePanel(null)}
+
+          onToggleTheme={() => togglePanel('theme')}
+          isThemeOpen={activePanel() === 'theme'}
+          onCloseTheme={() => setActivePanel(null)}
+          activeTheme={activeTheme()}
+          onSelectTheme={handleThemeChange}
         />
       </div>
     </div>

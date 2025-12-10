@@ -196,7 +196,7 @@ const PomodoroTimer: Component = () => {
     };
 
     return (
-        <div class="w-full flex flex-col relative overflow-hidden transition-all duration-300 min-h-[280px]">
+        <div class="w-full h-full flex flex-col relative overflow-hidden transition-all duration-300">
             <div class={`absolute inset-0 bg-black/90 z-20 transition-transform duration-300 p-4 flex flex-col gap-3 ${isSettingsOpen() ? 'translate-x-0' : 'translate-x-full'}`}>
                 <div class="flex justify-between items-center mb-1 border-b border-white/10 pb-2">
                     <span class="text-xs font-bold uppercase tracking-widest text-white">Timer Settings</span>
@@ -291,7 +291,7 @@ const PomodoroTimer: Component = () => {
                     </div>
                 </div>
 
-                <div class="text-center py-2 relative group flex-1 flex items-center justify-center">
+                <div class="text-center py-5 relative group flex-1 flex items-center justify-center">
                     <span class={`countdown font-mono text-6xl text-white`}>
                         <span style={{ "--value": Math.floor(Math.floor(timeLeft() / 60) / 10) } as any}></span>
                         <span style={{ "--value": Math.floor(timeLeft() / 60) % 10 } as any}></span>:

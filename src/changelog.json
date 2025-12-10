@@ -1,0 +1,41 @@
+[
+    {
+        "version": "1.3.0",
+        "date": "2025-12-10",
+        "changes": [
+            "Theme Palette: Added 10+ themes including Classic, Retro, Cyber, and Daisy.",
+            "Multi-page Notes: Notes widget now supports 3 independent pages.",
+            "Widget Panel: Standardized height and improved layout stability.",
+            "New Genre: Added 'House' category.",
+            "UI Refinements: Improved control panel positioning and menu spacing."
+        ]
+    },
+    {
+        "version": "1.2.0",
+        "date": "2025-12-09",
+        "changes": [
+            "Unified Menu System: Consolidated Stations, Ambient, and Widgets into a central bottom dock.",
+            "Visual Polish: Added cinematic vignette overlay and authentic dark glassmorphism.",
+            "Layout: Centered Control Panel and Menus for a balanced, symmetrical design.",
+            "Info: Added Station Category display to the Now Playing section."
+        ]
+    },
+    {
+        "version": "1.1.0",
+        "date": "2025-12-08",
+        "changes": [
+            "Added Productivity Widgets: Pomodoro Timer, Todo List, and Notes.",
+            "Implemented Ambient Mixer with Rain, Fire, Birds, and Thunder sounds.",
+            "Added Immersive Mode (Zen Mode) to hide UI elements."
+        ]
+    },
+    {
+        "version": "1.0.0",
+        "date": "2025-12-07",
+        "changes": [
+            "Initial Release: Lofi Station Radio.",
+            "Core Player: Robust YouTube playback with autoplay handling.",
+            "Station Selector: Categorized lofi channels."
+        ]
+    }
+]

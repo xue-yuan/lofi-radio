@@ -1,5 +1,8 @@
 @import "tailwindcss";
-@plugin "daisyui";
+
+@plugin "daisyui" {
+  themes: luxury, business, coffee, forest, night, sunset, lofi, black, retro, synthwave, dark;
+}
 
 html,
 body,

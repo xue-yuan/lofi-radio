@@ -27,7 +27,7 @@ const WidgetPanel: Component<WidgetPanelProps> = (props) => {
 
     return (
         <div
-            class={`fixed bottom-36 left-8 z-40 transition-all duration-300 origin-bottom-left ${props.isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4 pointer-events-none'}`}
+            class={`absolute bottom-full mb-8 left-1/2 -translate-x-1/2 z-40 transition-all duration-300 origin-bottom ${props.isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4 pointer-events-none'}`}
         >
             <div class="bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden w-[380px] shadow-2xl transition-all duration-300">
                 <div class="flex items-center p-2 bg-white/5 border-b border-white/5 pr-3">
@@ -60,19 +60,19 @@ const WidgetPanel: Component<WidgetPanelProps> = (props) => {
                     <button class="btn btn-xs btn-ghost btn-circle text-white/40 hover:text-white" onClick={props.onClose}>✕</button>
                 </div>
 
-                <div class="relative min-h-[300px]">
-                    <div class={`transition-opacity duration-300 ${activeTab() === 'timer' ? 'block' : 'hidden'}`}>
-                        <div class="p-6 flex flex-col items-center justify-center min-h-[300px]">
+                <div class="relative h-[340px]">
+                    <div class={`h-full transition-opacity duration-300 ${activeTab() === 'timer' ? 'block' : 'hidden'}`}>
+                        <div class="p-4 h-full flex flex-col items-center justify-center">
                             <PomodoroTimer />
                         </div>
                     </div>
-                    <div class={`transition-opacity duration-300 ${activeTab() === 'todo' ? 'block' : 'hidden'}`}>
-                        <div class="p-6 w-full flex flex-col items-center">
+                    <div class={`h-full transition-opacity duration-300 ${activeTab() === 'todo' ? 'block' : 'hidden'}`}>
+                        <div class="p-4 h-full w-full flex flex-col">
                             <TodoList />
                         </div>
                     </div>
-                    <div class={`transition-opacity duration-300 ${activeTab() === 'notes' ? 'block' : 'hidden'}`}>
-                        <div class="p-6 w-full flex flex-col items-center">
+                    <div class={`h-full transition-opacity duration-300 ${activeTab() === 'notes' ? 'block' : 'hidden'}`}>
+                        <div class="p-4 h-full w-full flex flex-col">
                             <NoteBlock />
                         </div>
                     </div>
