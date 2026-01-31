@@ -46,5 +46,23 @@ export const playRandomChannel = (categoryId: string) => {
     const pool = candidates.length > 0 ? candidates : channels;
     const randomChannel = pool[Math.floor(Math.random() * pool.length)];
 
+
     playChannel(categoryId, randomChannel.id);
+};
+
+export const playRandomStation = () => {
+    const categories = STATION_CATEGORIES;
+    const currentCatId = playerState.currentCategoryId;
+
+    const candidates = categories.filter(c => c.id !== currentCatId);
+    const pool = candidates.length > 0 ? candidates : categories;
+
+    const randomCategory = pool[Math.floor(Math.random() * pool.length)];
+    playRandomChannel(randomCategory.id);
+};
+
+export const playFullyRandom = () => {
+    const categories = STATION_CATEGORIES;
+    const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+    playRandomChannel(randomCategory.id);
 };

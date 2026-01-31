@@ -1,15 +1,16 @@
 import { createSignal, createEffect, Show, onMount, onCleanup, type Component } from 'solid-js';
-import { playerState, toggleMute, setVolume, setPlayerState } from './stores/playerStore';
+import { playerState, toggleMute, setVolume, setPlayerState, playRandomChannel, playRandomStation, playFullyRandom } from './stores/playerStore';
 import YouTubePlayer from './components/YouTubePlayer';
 import ControlPanel from './components/ControlPanel';
 import WidgetPanel from './components/WidgetPanel';
 import DigitalClock from './components/DigitalClock';
 import WelcomeScreen from './components/WelcomeScreen';
 import Sidebar from './components/Sidebar';
+import InfoPanel from './components/InfoPanel';
 import Header from './components/Header';
 
 const App: Component = () => {
-  const [activePanel, setActivePanel] = createSignal<'station' | 'ambient' | 'theme' | null>(null);
+  const [activePanel, setActivePanel] = createSignal<'station' | 'ambient' | 'theme' | 'info' | null>(null);
   const [isWidgetsOpen, setIsWidgetsOpen] = createSignal(false);
   const [isIdle, setIsIdle] = createSignal(false);
   const [isImmersiveEnabled, setIsImmersiveEnabled] = createSignal(false);
@@ -21,10 +22,11 @@ const App: Component = () => {
   const handleStart = () => {
     setHasStarted(true);
     setPlayerState('isMuted', false);
-    setPlayerState('isPlaying', true);
+    playFullyRandom();
+    setActivePanel('info');
   };
 
-  const togglePanel = (panel: 'station' | 'ambient' | 'theme') => {
+  const togglePanel = (panel: 'station' | 'ambient' | 'theme' | 'info') => {
     setActivePanel(prev => prev === panel ? null : panel);
   };
 
@@ -86,7 +88,10 @@ const App: Component = () => {
           setVolume(Math.max(0, playerState.volume - 5));
           break;
         case 'KeyM':
-          toggleMute();
+          playRandomStation();
+          break;
+        case 'KeyN':
+          playRandomChannel(playerState.currentCategoryId);
           break;
       }
     };
@@ -109,6 +114,10 @@ const App: Component = () => {
         <WidgetPanel
           isOpen={isWidgetsOpen()}
           onClose={() => setIsWidgetsOpen(false)}
+        />
+        <InfoPanel
+          isOpen={activePanel() === 'info'}
+          onClose={() => setActivePanel(null)}
         />
       </div>
       <div class={`transition-opacity duration-1000 ${isIdle() ? 'opacity-0 pointer-events-none' : 'opacity-100 z-[60] relative'}`}>
@@ -138,6 +147,10 @@ const App: Component = () => {
           onToggleWidgets={toggleWidgets}
           isWidgetsOpen={isWidgetsOpen()}
           onCloseWidgets={() => setIsWidgetsOpen(false)}
+
+          onToggleInfo={() => togglePanel('info')}
+          isInfoOpen={activePanel() === 'info'}
+          onCloseInfo={() => setActivePanel(null)}
 
           onToggleTheme={() => togglePanel('theme')}
           isThemeOpen={activePanel() === 'theme'}

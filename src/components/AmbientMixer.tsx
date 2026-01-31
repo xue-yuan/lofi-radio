@@ -63,7 +63,6 @@ const AmbientMixer: Component<AmbientMixerProps> = (props) => {
             if (!audio) return;
 
             const userVolume = currentVolumes[id] || 0;
-            // If global mute is on, effective volume is 0. Otherwise, use user set volume.
             const effectiveVolume = muted ? 0 : userVolume;
 
             audio.volume = effectiveVolume;

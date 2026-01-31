@@ -1,5 +1,16 @@
 [
     {
+        "version": "1.4.3",
+        "date": "2026-01-31",
+        "changes": [
+            "Feature: Added draggable 'Info Panel' for community notices and shortcuts.",
+            "UX Improvement: 'Tune In' now randomly selects a channel for a fresh start every time.",
+            "Shortcuts: Remapped 'M' to shuffle Stations and 'N' to shuffle Channels.",
+            "Content: Added new 'J-Pop' category and expanded Lofi/R&B selections.",
+            "Visual: Refactored Welcome Screen and Menu integration."
+        ]
+    },
+    {
         "version": "1.4.2",
         "date": "2025-12-19",
         "changes": [
