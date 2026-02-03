@@ -4,6 +4,7 @@ interface Stage {
     id: string;
     type: 'focus' | 'break' | 'long-break';
     name: string;
+    duration: number;
 }
 
 const PomodoroTimer: Component = () => {
@@ -11,25 +12,47 @@ const PomodoroTimer: Component = () => {
     const [shortBreakTime, setShortBreakTime] = createSignal(5);
     const [longBreakTime, setLongBreakTime] = createSignal(15);
     const [isSettingsOpen, setIsSettingsOpen] = createSignal(false);
+
     const defaultTimeline: Stage[] = [
-        { id: '1', type: 'focus', name: 'Focus' },
-        { id: '2', type: 'break', name: 'Short Break' },
-        { id: '3', type: 'focus', name: 'Focus' },
-        { id: '4', type: 'break', name: 'Short Break' },
-        { id: '5', type: 'focus', name: 'Focus' },
-        { id: '6', type: 'long-break', name: 'Long Break' },
+        { id: '1', type: 'focus', name: 'Focus', duration: 25 },
+        { id: '2', type: 'break', name: 'Short Break', duration: 5 },
+        { id: '3', type: 'focus', name: 'Focus', duration: 25 },
+        { id: '4', type: 'break', name: 'Short Break', duration: 5 },
+        { id: '5', type: 'focus', name: 'Focus', duration: 25 },
+        { id: '6', type: 'long-break', name: 'Long Break', duration: 15 },
     ];
     const [timeline, setTimeline] = createSignal<Stage[]>(defaultTimeline);
     const [currentStageIndex, setCurrentStageIndex] = createSignal(0);
     const [timeLeft, setTimeLeft] = createSignal(25 * 60);
     const [isActive, setIsActive] = createSignal(false);
     const [autoStart, setAutoStart] = createSignal(false);
+    const [dailyTomatoes, setDailyTomatoes] = createSignal(0);
 
     let timerInterval: any;
 
     onCleanup(() => clearInterval(timerInterval));
 
-    const getDuration = (type: string) => {
+    const loadDailyTomatoes = () => {
+        try {
+            const stored = localStorage.getItem('daily_pomodoro_stats');
+            if (stored) {
+                const data = JSON.parse(stored);
+                const today = new Date().toISOString().split('T')[0];
+                if (data.date === today) {
+                    setDailyTomatoes(data.count);
+                } else {
+                    localStorage.setItem('daily_pomodoro_stats', JSON.stringify({ date: today, count: 0 }));
+                    setDailyTomatoes(0);
+                }
+            }
+        } catch (e) {
+            console.error("Failed to load daily tomatoes", e);
+        }
+    };
+
+    loadDailyTomatoes();
+
+    const getDefaultDuration = (type: string) => {
         switch (type) {
             case 'focus': return focusTime();
             case 'break': return shortBreakTime();
@@ -42,10 +65,10 @@ const PomodoroTimer: Component = () => {
         const t = timeline();
         if (t.length === 0) return { name: 'Focus', type: 'focus', duration: focusTime() };
         const stage = t[currentStageIndex() % t.length];
-        return { ...stage, duration: getDuration(stage.type) };
+        return stage;
     };
 
-    createEffect(on([focusTime, shortBreakTime, longBreakTime, timeline, currentStageIndex], () => {
+    createEffect(on([timeline, currentStageIndex], () => {
         if (!untrack(isActive)) {
             setTimeLeft(currentStage().duration * 60);
         }
@@ -87,8 +110,7 @@ const PomodoroTimer: Component = () => {
         setCurrentStageIndex(nextIndex);
 
         const nextStageObj = t[nextIndex];
-        const duration = getDuration(nextStageObj.type);
-        setTimeLeft(duration * 60);
+        setTimeLeft(nextStageObj.duration * 60);
 
         return nextIndex;
     };
@@ -96,6 +118,13 @@ const PomodoroTimer: Component = () => {
     const finishTimer = () => {
         clearInterval(timerInterval);
         playAlarmSound();
+
+        if (currentStage().type === 'focus') {
+            const today = new Date().toISOString().split('T')[0];
+            const newCount = dailyTomatoes() + 1;
+            setDailyTomatoes(newCount);
+            localStorage.setItem('daily_pomodoro_stats', JSON.stringify({ date: today, count: newCount }));
+        }
 
         if (Notification.permission === "granted") {
             new Notification("Lofi Station", {
@@ -129,9 +158,7 @@ const PomodoroTimer: Component = () => {
     };
 
     const toggleTimer = async () => {
-        if (timeline().length === 0) {
-            return
-        };
+        if (timeline().length === 0) return;
 
         if (!isActive()) {
             await requestNotificationPermission();
@@ -162,7 +189,8 @@ const PomodoroTimer: Component = () => {
         const newStage: Stage = {
             id: Date.now().toString() + Math.random(),
             type,
-            name
+            name,
+            duration: getDefaultDuration(type)
         };
         setTimeline([...timeline(), newStage]);
     };
@@ -190,12 +218,22 @@ const PomodoroTimer: Component = () => {
 
             const t = newTimeline;
             const newStage = t[currentStageIndex() % t.length];
-            const duration = getDuration(newStage.type);
-            setTimeLeft(duration * 60);
+            setTimeLeft(newStage.duration * 60);
         } else if (index < currentStageIndex()) {
             setCurrentStageIndex(currentStageIndex() - 1);
         }
     };
+
+    const updateStageDuration = (index: number, newDuration: number) => {
+        const t = [...timeline()];
+        if (t[index]) {
+            t[index].duration = newDuration;
+            setTimeline(t);
+            if (index === currentStageIndex() && !isActive()) {
+                setTimeLeft(newDuration * 60);
+            }
+        }
+    }
 
     return (
         <div class="w-full h-full flex flex-col relative overflow-hidden transition-all duration-300">
@@ -206,6 +244,7 @@ const PomodoroTimer: Component = () => {
                 </div>
                 <div class="flex-1 overflow-y-auto custom-scrollbar pr-1 flex flex-col gap-4">
                     <div class="space-y-3">
+                        <div class="text-[10px] text-white/40 uppercase font-bold">Default Durations</div>
                         <div class="flex flex-col gap-1">
                             <div class="flex justify-between text-[10px] text-white/60"><span>Focus</span><span>{focusTime()}m</span></div>
                             <input type="range" min="1" max="60" value={focusTime()} onInput={(e) => setFocusTime(Number(e.currentTarget.value))} class="range range-xs range-primary" />
@@ -222,20 +261,30 @@ const PomodoroTimer: Component = () => {
                     <div class="divider my-0 opacity-50"></div>
                     <div class="flex flex-col gap-2">
                         <span class="text-[10px] uppercase font-bold text-white/40">Sequence</span>
-                        <div class="flex flex-col gap-1 max-h-[120px] overflow-y-auto custom-scrollbar p-1 bg-black/20 rounded-box">
+                        <div class="flex flex-col gap-1 max-h-[160px] overflow-y-auto custom-scrollbar p-1 bg-black/20 rounded-box">
                             <For each={timeline()}>
                                 {(stage, i) => (
-                                    <div class={`flex justify-between items-center p-1.5 rounded  marker:group ${i() === currentStageIndex() ? 'bg-white/20 border border-white/20' : 'bg-white/5 hover:bg-white/10'}`}>
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-[10px] font-mono opacity-30">{i() + 1}.</span>
+                                    <div class={`flex justify-between items-center p-1.5 rounded marker:group ${i() === currentStageIndex() ? 'bg-white/20 border border-white/20' : 'bg-white/5 hover:bg-white/10'}`}>
+                                        <div class="flex items-center gap-2 flex-1">
+                                            <span class="text-[10px] font-mono opacity-30 w-3">{i() + 1}.</span>
                                             <div class={`w-1.5 h-1.5 rounded-full ${stage.type === 'focus' ? 'bg-primary' : stage.type === 'break' ? 'bg-secondary' : 'bg-accent'}`}></div>
-                                            <span class={`text-xs ${i() === currentStageIndex() ? 'text-white font-bold' : 'text-white/80'}`}>{stage.name}</span>
-                                            {i() === currentStageIndex() && <span class="text-[8px] uppercase bg-white/20 px-1 rounded text-white/60 ml-2">Active</span>}
+                                            <span class={`text-xs truncate ${i() === currentStageIndex() ? 'text-white font-bold' : 'text-white/80'}`}>{stage.name}</span>
                                         </div>
-                                        <button
-                                            class="btn btn-xs btn-ghost btn-square text-error opacity-40 hover:opacity-100"
-                                            onClick={() => removeStage(stage.id, i())}
-                                        >×</button>
+                                        <div class="flex items-center gap-2">
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                max="120"
+                                                class="input input-xs input-ghost w-12 text-right p-0 pr-1 text-[10px] h-5"
+                                                value={stage.duration}
+                                                onInput={(e) => updateStageDuration(i(), Number(e.currentTarget.value))}
+                                            />
+                                            <span class="text-[9px] opacity-50 -ml-1">m</span>
+                                            <button
+                                                class="btn btn-xs btn-ghost btn-square text-error opacity-40 hover:opacity-100 h-5 w-5 min-h-0"
+                                                onClick={() => removeStage(stage.id, i())}
+                                            >×</button>
+                                        </div>
                                     </div>
                                 )}
                             </For>
@@ -263,6 +312,12 @@ const PomodoroTimer: Component = () => {
                             </span>
                         </div>
                         <div class="flex items-center gap-1">
+                            <div class="tooltip tooltip-bottom" data-tip="Daily Tomatoes">
+                                <div class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-white/5 border border-white/5 mr-1">
+                                    <span class="text-sm">🍅</span>
+                                    <span class="text-xs font-mono font-bold text-white/80">{dailyTomatoes()}</span>
+                                </div>
+                            </div>
                             <span class="text-[10px] text-white/40 uppercase">Auto</span>
                             <input
                                 type="checkbox"
@@ -282,6 +337,7 @@ const PomodoroTimer: Component = () => {
                                     class={`h-1 min-w-[8px] flex-1 rounded-full transition-all duration-300 ${i() === currentStageIndex() ? (s.type === 'focus' ? 'bg-primary' : s.type === 'break' ? 'bg-secondary' : 'bg-accent') :
                                         i() < currentStageIndex() ? 'bg-white/20' : 'bg-white/5'
                                         }`}
+                                    title={`${s.name}: ${s.duration}m`}
                                 ></div>
                             )}
                         </For>

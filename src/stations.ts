@@ -54,6 +54,7 @@ export const STATION_CATEGORIES: StationCategory[] = [
             { id: '7ge2r9XkYCY', title: '90\'s Hip-Hop (1997) [Lost Demos] B.I.G. Inspired Tribute – Backseat Loyalty', author: 'Block Legends 90s' },
             { id: '6Jsnem7i848', title: '24/7 Beats Instrumental Hip-Hop - Jazzhop, Lo-Fi, Chillhop, Boom Bap // Beats Only', author: 'Sphere of Hip-Hop' },
             { id: 'BxY4TtQgV58', title: 'It\'s ILLEGAL to Own This 90\'s Hip Hop Mixtape | 90s Boom Bap / Old School Hip Hop Mix', author: 'Lunaro' },
+            { id: 'YOJlRdNaUJo', title: '90\'s Hip-Hop (1995) [Lost Demos] B.I.G. Inspired Tribute', author: '90s HipHop Legends' },
         ]
     },
     {
@@ -78,6 +79,7 @@ export const STATION_CATEGORIES: StationCategory[] = [
             { id: 'jB4rKRzS9to', title: 'TW Sign in Back to My Room 1987 🎶 Synthwave Vaporwave Chillwave Retro Mix', author: 'retro tape' },
             { id: 'gopYmb38DgM', title: 'Terminal 1987 Never Closed — 24/7 Synthwave Dev Stream', author: 'Devs FM' },
             { id: 'nvZg5qbNmJc', title: 'Poolsoft’92 Leisure Terminal | 24/7 Chillwave Dev Stream', author: 'Devs FM' },
+            { id: 'jsWiI-dDi0s', title: 'Retro GTA Vice City Flash F.M. Night 🌴 Synthpop • Pop Rock Classics • 80s Classics • GTA Vibes •', author: 'Midnight Mirage' },
         ]
     },
     {
@@ -99,8 +101,8 @@ export const STATION_CATEGORIES: StationCategory[] = [
         channels: [
             { id: '9U-fUUuOnbM', title: 'Citypop Radio - 80s Japanese Disco / 24/7 Livestream', author: 'City Pop 永遠' },
             { id: 'RgMmmgkbh90', title: '集中したいとき、ただ流しておく音｜24/7 J-POP・シティポップ・メロウ・チル | メロウ電波', author: 'Vibe Match Radio' },
-            { id: 'dQ9WrIzFJy4', title: 'Kyoto Winter Lights 1980❄️🌙 | 東京ウィンターライト City Pop & Lo-Fi Chill Radio – 夜の東京BGM・昭和シティポップ24/7', author: 'Hazy Streets' },
             { id: 'oY-hl_6sRAY', title: 'New J Channel 🎌 Japanese Soul Funk Disco City Pop Kayo Reggae Music Radio 70s 80s🗼24/7 ニューミュージック 和モノ', author: 'Luiger' },
+            { id: 'QZrmnnEsb7A', title: 'tokyo city pop drive | 日本 シティポップ音楽 ', author: 'TOKYO TONES' },
         ]
     },
     {
@@ -110,8 +112,6 @@ export const STATION_CATEGORIES: StationCategory[] = [
         channels: [
             { id: 'xORCbIptqcc', title: 'sleep ambient music 💤 relaxing radio to fall asleep to', author: 'Lofi Girl' },
             { id: 'S_MOd40zlYU', title: 'dark ambient radio 🌃 music to escape/dream to', author: 'Lofi Girl' },
-            { id: 'RrkrdYm3HPQ', title: 'Blade Runner Radio', author: 'Lush House Chill' },
-            { id: 'QtvN3slWvP4', title: 'Luxury Lounge Music | Deep House Mix for Tropical Sunset Chillout Vibes', author: '( LUX )  - Ambient Music' },
         ]
     }
 ];
