@@ -52,7 +52,6 @@ const TodoList: Component = () => {
                         value={inputValue()}
                         onInput={(e) => setInputValue(e.currentTarget.value)}
                     />
-                    <button type="submit" id="submitBtn" class="hidden" aria-hidden="true"></button>
                 </form>
                 <div class="flex-1 overflow-y-auto pr-1 space-y-2 custom-scrollbar min-h-0">
                     <For each={todos()} fallback={<div class="text-xs text-center text-white/30 py-4">No tasks yet</div>}>
