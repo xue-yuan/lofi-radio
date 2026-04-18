@@ -24,26 +24,13 @@ jobs:
       - name: Run health check
         run: node scripts/check-links.js
 
-      - name: Read report
-        id: read_report
-        run: |
-          if [ -f reports/broken-links-report.md ]; then
-            {
-              echo 'report_body<<EOF'
-              cat reports/broken-links-report.md
-              echo 'EOF'
-            } >> "$GITHUB_OUTPUT"
-          else
-            echo "report_body=No broken links found." >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore: update broken youtube links"
           title: "🚨 Health Check: Broken YouTube Links Detected"
-          body: ${{ steps.read_report.outputs.report_body }}
+          body-path: reports/broken-links-report.md
           branch: youtube-health-check
           delete-branch: true
           labels: |

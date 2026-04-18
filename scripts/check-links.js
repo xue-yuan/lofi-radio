@@ -45,29 +45,31 @@ async function run() {
     }
   }
 
+  const brokenLinks = data.flatMap(cat =>
+    cat.channels
+      .filter(ch => ch.broken)
+      .map(ch => `- [${ch.title}](https://www.youtube.com/watch?v=${ch.id}) (ID: \`${ch.id}\`)`)
+  );
+
+  let report = '';
   if (brokenCount > 0) {
     console.log(`\nFound ${brokenCount} broken links. Updating JSON...`);
     fs.writeFileSync(STATIONS_PATH, JSON.stringify(data, null, 2));
 
-    const brokenLinks = data.flatMap(cat =>
-      cat.channels
-        .filter(ch => ch.broken)
-        .map(ch => `- [${ch.title}](https://www.youtube.com/watch?v=${ch.id}) (ID: \`${ch.id}\`)`)
-    );
-
-    const report = [
+    report = [
       'The automated health check has identified the following broken YouTube links:',
       '',
       ...brokenLinks,
       '',
       'These have been marked as `broken: true` in `src/stations.json` to exclude them from the player.'
     ].join('\n');
-
-    fs.writeFileSync(path.resolve(__dirname, '../reports/broken-links-report.md'), report);
-    console.log('✅ Update complete and report generated in reports/.');
   } else {
     console.log('\n✨ All links are healthy!');
+    report = '✨ All YouTube links are healthy! No action required.';
   }
+
+  fs.writeFileSync(path.resolve(__dirname, '../reports/broken-links-report.md'), report);
+  console.log('✅ Report generated in reports/broken-links-report.md');
 }
 
 run().catch(err => {
