@@ -1,5 +1,23 @@
 [
     {
+        "version": "1.5.1",
+        "date": "2026-04-18",
+        "changes": [
+            "Automation: Implemented GitHub Actions for daily YouTube link health checks.",
+            "UX: Added automatic 'broken link' detection and session-based auto-skip for interrupted streams.",
+            "Scripting: Added utility scripts for automated station pruning and metadata fetching via oEmbed API."
+        ]
+    },
+    {
+        "version": "1.5.0",
+        "date": "2026-04-12",
+        "changes": [
+            "Content Expansion: Significant expansion of the station database with over 30+ new high-quality channels.",
+            "Architecture: Migrated station data to an externalized JSON structure for easier automation and maintenance.",
+            "New Genres: Introduced 'Deep House', 'Trip', and 'Tropical House' categories to the station roster."
+        ]
+    },
+    {
         "version": "1.4.3",
         "date": "2026-01-31",
         "changes": [
