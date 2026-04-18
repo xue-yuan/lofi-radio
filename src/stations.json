@@ -82,10 +82,9 @@
         "author": "Cafe Music BGM channel"
       },
       {
-        "id": "HhqWd3Axq9Y",
-        "title": "Crackling Fireplace & Smooth Jazz Instrumental 🍂 Warm Jazz Music at Cozy Fall Coffee Shop Ambience",
-        "author": "Cafe Music BGM channel",
-        "broken": true
+        "id": "fEvM-OUbaKs",
+        "title": "Coffee Jazz Music - Chill Out Lounge Jazz Music Radio - 24/7 Live Stream - Slow Jazz - 作業用カフェBGM",
+        "author": "BGM channel"
       },
       {
         "id": "j-tYR6tvtb0",
@@ -96,6 +95,11 @@
         "id": "uuh15wxIMg0",
         "title": "March Jazz Mix For A Relaxing Day - Sweet Jazz Background Music & Fireplace Sound In A Cozy Bedroom",
         "author": "Serene Chords"
+      },
+      {
+        "id": "DSGyEsJ17cI",
+        "title": "Rainy Jazz: Relaxing Jazz & Bossa Nova Music Radio - 24/7 Chill Out Piano & Guitar Music",
+        "author": "Cafe Music BGM channel"
       }
     ]
   },
@@ -135,10 +139,19 @@
         "author": "Lunaro"
       },
       {
-        "id": "YOJlRdNaUJo",
-        "title": "90's Hip-Hop (1995) [Lost Demos] B.I.G. Inspired Tribute",
-        "author": "90s HipHop Legends",
-        "broken": true
+        "id": "0MOkLkTP-Jk",
+        "title": "Gangsta Rap Radio 24/7 🔴 Underground Rap & Hip Hop Live Music (Rap Mafia Radio)",
+        "author": "Rap Mafia"
+      },
+      {
+        "id": "ygwurHw0z78",
+        "title": "Old School 90s💥Eminem & Snoop Dogg,Tyga, 50 Cent, Dr Dree, Ice Cube, Juicy, Drake,",
+        "author": "HIP HOP"
+      },
+      {
+        "id": "qst1GqiMBw0",
+        "title": "Check the Rhyme 🎤 24/7 Hip-Hop Radio 🎶 - 90s, Jazz Rap, Jazzy Boom Bap, Lofi",
+        "author": "Sphere of Hip-Hop"
       }
     ]
   },
@@ -166,6 +179,16 @@
         "id": "zkgOc3J2fjU",
         "title": "24/7 Trapsoul R&B Lofi - Beats For Work, Relax, Study & Vibing",
         "author": "A Lofi Soul"
+      },
+      {
+        "id": "WamzfT5E20c",
+        "title": "After Hours R&B 24/7 🌙 | Chill RnB • Slow Jams • Soul Music (Live Stream)",
+        "author": "9eleven beats"
+      },
+      {
+        "id": "POotAp08RcM",
+        "title": "24/7 R&B Relax -  Cozy Music / for Chill / Work / Indie / Ballad / Relax / Coffee",
+        "author": "Soul Stories Daily"
       }
     ]
   },
@@ -207,35 +230,29 @@
     ]
   },
   {
-    "id": "house",
-    "name": "House",
-    "description": "Deep grooves and four-on-the-floor rhythms for focus",
+    "id": "deep-house",
+    "name": "Deep House",
+    "description": "Smooth and groovy deep house for focus and relaxation",
     "channels": [
       {
-        "id": "g9cxLj8Ayqc",
-        "title": "Luxury Lounge Music | Elegant Deep House Chill Mix - Sunset Tropical Vibes",
-        "author": "Lush House Chill"
+        "id": "WsDyRAPFBC8",
+        "title": "Deep & Melodic House 24/7: Relaxing Music • Chill Study Music",
+        "author": "Monstercat Silk"
       },
       {
-        "id": "mQgvkkQNKe0",
-        "title": "Luxury Lounge Music Deep House Mix ~ Tropical Sunset Chill & Relaxing Vibes",
-        "author": "Lush House Chill"
+        "id": "Ihm9OQWmibA",
+        "title": "Deep House · Smooth Background Music · 24/7 Live Radio",
+        "author": "The Grand Sound"
       },
       {
-        "id": "QtvN3slWvP4",
-        "title": "Luxury Lounge Music | Deep House Mix for Tropical Sunset Chillout Vibes",
-        "author": "Lush House Chill",
-        "broken": true
+        "id": "73gaQ8KUQ3w",
+        "title": "Best of Vocal Deep House Mix 🌙 24/7 Livestream for Relaxing & Focus | DL Music",
+        "author": "DL Music"
       },
       {
-        "id": "36YnV9STBqc",
-        "title": "The Good Life Radio • 24/7 Live Radio | Best Relax House, Chillout, Study, Running, Gym, Happy Music",
-        "author": "The Good Life Radio x Sensual Musique"
-      },
-      {
-        "id": "uRAHIMCrFNM",
-        "title": "Tropical House Radio 🌴 24/7 Live Music 🌴 Chill Summer Music",
-        "author": "Ballistic Live"
+        "id": "BrrKIdMZYqU",
+        "title": "Night City Deep House 24/7 🌃 Smooth Relaxing Beats | Late Night Radio",
+        "author": "DL Music"
       }
     ]
   },
@@ -263,6 +280,11 @@
         "id": "QZrmnnEsb7A",
         "title": "tokyo city pop drive | 日本 シティポップ音樂 ",
         "author": "TOKYO TONES"
+      },
+      {
+        "id": "u60IK9c1K_k",
+        "title": "【24/7 LIVE playlist】 Japanese City Pop 80s｜元気・勇気・君へ シティポップ プレイリスト🎧",
+        "author": "Madoka Yuunagi | 80s Japanese City Pop"
       }
     ]
   },
@@ -280,6 +302,70 @@
         "id": "S_MOd40zlYU",
         "title": "dark ambient radio 🌃 music to escape/dream to",
         "author": "Lofi Girl"
+      },
+      {
+        "id": "AXvnFk38sDQ",
+        "title": "🔴 24/7 • Ambient Space Music Transmission | Sleep, Dream, Study & Focus 🌌",
+        "author": "Nimanty • Ambient Space Music Voyages"
+      },
+      {
+        "id": "Y4u7D7xCvtw",
+        "title": "LOTR Ambient Music – 24/7 Live Radio | Study, Relax, Sleep, Focus [NO ADS]",
+        "author": "Symbology Cinematics"
+      }
+    ]
+  },
+  {
+    "id": "tropical-house",
+    "name": "Tropical House",
+    "description": "Summer vibes with tropical house music",
+    "channels": [
+      {
+        "id": "36YnV9STBqc",
+        "title": "The Good Life Radio • 24/7 Live Radio | Best Relax House, Chillout, Study, Running, Gym, Happy Music",
+        "author": "The Good Life Radio x Sensual Musique"
+      },
+      {
+        "id": "mQgvkkQNKe0",
+        "title": "Luxury Lounge Music Deep House Mix ~ Tropical Sunset Chill & Relaxing Vibes",
+        "author": "Lush House Chill"
+      },
+      {
+        "id": "g9cxLj8Ayqc",
+        "title": "Luxury Lounge Music | Elegant Deep House Chill Mix - Sunset Tropical Vibes",
+        "author": "Lush House Chill"
+      },
+      {
+        "id": "z11_vvPeS_8",
+        "title": "Tropical House Radio 🌴 24/7 Live Music 🌴 Chill Out Music",
+        "author": "Ballistic Live"
+      },
+      {
+        "id": "_TXCxhwCDcU",
+        "title": "Non Stop Chillout 2026 • Summer Tropical House and Deep House Music Mix",
+        "author": "Roho Music"
+      },
+      {
+        "id": "uRAHIMCrFNM",
+        "title": "Tropical House Radio 🌴 24/7 Live Music 🌴 Chill Summer Music",
+        "author": "Ballistic Live"
+      },
+      {
+        "id": "NJyCwdWT80c",
+        "title": "Chill House 2026 • ChillYourMind Radio 24/7 Live Chill Music | Summer Vibes - Deep House & Tropical",
+        "author": "ChillYourMind"
+      }
+    ]
+  },
+  {
+    "id": "trip",
+    "name": "Trip",
+    "description": "Have a good trip",
+    "channels": [
+      {
+        "id": "uDuN6a6w1K8",
+        "title": "24/7 Psytrance Live 🔥 March Mix | Dark & Progressive Psy • Non Stop Stream",
+        "author": "Our Psytrance Journey "
       }
     ]
   }
