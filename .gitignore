@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 note.md
+
+reports/*.md
+!reports/.gitkeep

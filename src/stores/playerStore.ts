@@ -2,24 +2,24 @@ import { createStore } from "solid-js/store";
 import { STATION_CATEGORIES } from "../stations";
 
 interface PlayerState {
-    isPlaying: boolean;
-    isMuted: boolean;
-    volume: number;
-    currentCategoryId: string;
-    currentChannelId: string;
-    isLoading: boolean;
+  isPlaying: boolean;
+  isMuted: boolean;
+  volume: number;
+  currentCategoryId: string;
+  currentChannelId: string;
+  isLoading: boolean;
 }
 
 const defaultCat = STATION_CATEGORIES[0];
 const defaultChan = defaultCat.channels[0];
 
 export const [playerState, setPlayerState] = createStore<PlayerState>({
-    isPlaying: false,
-    isMuted: false,
-    volume: 50,
-    currentCategoryId: defaultCat.id,
-    currentChannelId: defaultChan.id,
-    isLoading: true,
+  isPlaying: false,
+  isMuted: false,
+  volume: 50,
+  currentCategoryId: defaultCat.id,
+  currentChannelId: defaultChan.id,
+  isLoading: true,
 });
 
 export const setPlaying = (isPlaying: boolean) => setPlayerState("isPlaying", isPlaying);
@@ -29,40 +29,43 @@ export const setLoading = (isLoading: boolean) => setPlayerState("isLoading", is
 export const toggleMute = () => setPlayerState("isMuted", (m) => !m);
 
 export const playChannel = (categoryId: string, channelId: string) => {
-    setPlayerState({
-        currentCategoryId: categoryId,
-        currentChannelId: channelId,
-        isLoading: true,
-        isPlaying: true
-    });
+  setPlayerState({
+    currentCategoryId: categoryId,
+    currentChannelId: channelId,
+    isLoading: true,
+    isPlaying: true
+  });
 };
 
 export const playRandomChannel = (categoryId: string) => {
-    const category = STATION_CATEGORIES.find(c => c.id === categoryId);
-    if (!category) return;
+  const category = STATION_CATEGORIES.find(c => c.id === categoryId);
+  if (!category) return;
 
-    const channels = category.channels;
-    const candidates = channels.filter(c => c.id !== playerState.currentChannelId);
-    const pool = candidates.length > 0 ? candidates : channels;
-    const randomChannel = pool[Math.floor(Math.random() * pool.length)];
+  const channels = category.channels.filter(c => !c.broken);
+  const candidates = channels.filter(c => c.id !== playerState.currentChannelId);
 
+  if (candidates.length === 0) {
+    playRandomStation();
+    return;
+  }
 
-    playChannel(categoryId, randomChannel.id);
+  const randomChannel = candidates[Math.floor(Math.random() * candidates.length)];
+  playChannel(categoryId, randomChannel.id);
 };
 
 export const playRandomStation = () => {
-    const categories = STATION_CATEGORIES;
-    const currentCatId = playerState.currentCategoryId;
+  const categories = STATION_CATEGORIES;
+  const currentCatId = playerState.currentCategoryId;
 
-    const candidates = categories.filter(c => c.id !== currentCatId);
-    const pool = candidates.length > 0 ? candidates : categories;
+  const candidates = categories.filter(c => c.id !== currentCatId);
+  const pool = candidates.length > 0 ? candidates : categories;
 
-    const randomCategory = pool[Math.floor(Math.random() * pool.length)];
-    playRandomChannel(randomCategory.id);
+  const randomCategory = pool[Math.floor(Math.random() * pool.length)];
+  playRandomChannel(randomCategory.id);
 };
 
 export const playFullyRandom = () => {
-    const categories = STATION_CATEGORIES;
-    const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-    playRandomChannel(randomCategory.id);
+  const categories = STATION_CATEGORIES;
+  const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+  playRandomChannel(randomCategory.id);
 };
