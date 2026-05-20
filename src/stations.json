@@ -12,7 +12,8 @@
       {
         "id": "jfKfPfyJRdk",
         "title": "lofi hip hop radio 📚 beats to relax/study to",
-        "author": "Lofi Girl"
+        "author": "Lofi Girl",
+        "broken": true
       },
       {
         "id": "rPjez8z61rI",
@@ -37,7 +38,8 @@
       {
         "id": "HuFYqnbVbzY",
         "title": "jazz lofi radio 🎷 beats to chill/study to",
-        "author": "Lofi Girl"
+        "author": "Lofi Girl",
+        "broken": true
       },
       {
         "id": "Lcdi9O2XB4E",
@@ -62,7 +64,8 @@
       {
         "id": "P6Segk8cr-c",
         "title": "sad lofi radio ☔ beats for rainy days",
-        "author": "Lofi Girl"
+        "author": "Lofi Girl",
+        "broken": true
       }
     ]
   },
