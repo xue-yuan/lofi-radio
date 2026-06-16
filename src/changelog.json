@@ -1,5 +1,16 @@
 [
     {
+        "version": "1.5.2",
+        "date": "2026-06-16",
+        "changes": [
+            "Performance: Optimized title marquee scroll to only animate when title text overflows display limits.",
+            "UX: Added floating glassmorphic HUD visual overlay feedback for keyboard shortcuts.",
+            "UX: Enabled Space key quick-start from Welcome Screen with a pulsing text hint.",
+            "Links: Integrated direct YouTube video links on player track titles.",
+            "Audio: Replaced the ambient rain sound effect with a higher quality, smoother loop."
+        ]
+    },
+    {
         "version": "1.5.1",
         "date": "2026-04-18",
         "changes": [

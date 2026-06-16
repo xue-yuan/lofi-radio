@@ -1,4 +1,4 @@
-import { createMemo, Show, type Component } from "solid-js";
+import { createMemo, Show, createSignal, createEffect, onMount, onCleanup, type Component } from "solid-js";
 import { playerState, setVolume, toggleMute, playRandomChannel } from "../stores/playerStore";
 import { STATION_CATEGORIES } from "../stations";
 
@@ -85,6 +85,37 @@ const ControlPanel: Component<ControlPanelProps> = (props) => {
     }
   };
 
+  let containerRef: HTMLDivElement | undefined;
+  let textRef: HTMLHeadingElement | undefined;
+  const [shouldScroll, setShouldScroll] = createSignal(false);
+
+  const measureMarquee = () => {
+    if (containerRef && textRef) {
+      const containerWidth = containerRef.clientWidth;
+      const textWidth = textRef.scrollWidth;
+      setShouldScroll(textWidth > containerWidth);
+    }
+  };
+
+  createEffect(() => {
+    const title = currentChannel()?.title;
+    if (title) {
+      setShouldScroll(false);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(measureMarquee);
+      });
+    }
+  });
+
+  onMount(() => {
+    window.addEventListener('resize', measureMarquee);
+    setTimeout(measureMarquee, 100);
+  });
+
+  onCleanup(() => {
+    window.removeEventListener('resize', measureMarquee);
+  });
+
   return (
     <div class="fixed bottom-4 left-4 right-4 md:bottom-8 md:left-8 md:right-8 z-50 origin-bottom flex justify-center pointer-events-none">
       <div class="pointer-events-auto flex flex-col lg:grid lg:grid-cols-[1fr_auto_1fr] items-center gap-6 p-4 px-4 lg:px-8 bg-black/60 backdrop-blur-md rounded-box border border-white/10 shadow-lg relative w-full max-w-5xl">
@@ -99,14 +130,32 @@ const ControlPanel: Component<ControlPanelProps> = (props) => {
           <div class="min-w-0 flex-1 overflow-hidden relative group">
             <div class="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-base-100/10 to-transparent z-10 pointer-events-none"></div>
             <div class="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-base-100/10 to-transparent z-10 pointer-events-none"></div>
-            <div class="w-full overflow-hidden mask-linear-fade">
-              <div class="flex w-max animate-marquee hover:pause gap-8">
-                <h3 class="font-bold text-sm md:text-md px-2 text-white whitespace-nowrap">
-                  {currentChannel()?.title || "Loading..."}
-                </h3>
-                <h3 class="font-bold text-sm md:text-md px-2 text-white whitespace-nowrap" aria-hidden="true">
-                  {currentChannel()?.title || "Loading..."}
-                </h3>
+            <div ref={containerRef} class="w-full overflow-hidden">
+              <div 
+                class={`flex gap-8 ${shouldScroll() ? "w-max animate-marquee hover:pause mask-linear-fade" : "w-full"}`}
+              >
+                <a 
+                  href={`https://www.youtube.com/watch?v=${playerState.currentChannelId}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  class="inline-block"
+                >
+                  <h3 ref={textRef} class="font-bold text-sm md:text-md px-2 text-white hover:text-primary hover:underline transition-colors whitespace-nowrap cursor-pointer">
+                    {currentChannel()?.title || "Loading..."}
+                  </h3>
+                </a>
+                <Show when={shouldScroll()}>
+                  <a 
+                    href={`https://www.youtube.com/watch?v=${playerState.currentChannelId}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    class="inline-block"
+                  >
+                    <h3 class="font-bold text-sm md:text-md px-2 text-white hover:text-primary hover:underline transition-colors whitespace-nowrap cursor-pointer" aria-hidden="true">
+                      {currentChannel()?.title || "Loading..."}
+                    </h3>
+                  </a>
+                </Show>
               </div>
             </div>
             <p class="text-xs text-white/70 px-2 mt-1 truncate font-medium uppercase tracking-wider">

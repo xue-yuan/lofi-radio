@@ -19,6 +19,23 @@ const App: Component = () => {
   const [activeTheme, setActiveTheme] = createSignal(savedTheme);
   const [hasStarted, setHasStarted] = createSignal(false);
 
+  interface HUDState {
+    visible: boolean;
+    icon: string;
+    text: string;
+    progress?: number;
+  }
+  const [hud, setHud] = createSignal<HUDState>({ visible: false, icon: "", text: "" });
+  let hudTimer: ReturnType<typeof setTimeout>;
+
+  const showHUD = (icon: string, text: string, progress?: number) => {
+    clearTimeout(hudTimer);
+    setHud({ visible: true, icon, text, progress });
+    hudTimer = setTimeout(() => {
+      setHud(prev => ({ ...prev, visible: false }));
+    }, 1200);
+  };
+
   const handleStart = () => {
     setHasStarted(true);
     setPlayerState('isMuted', false);
@@ -74,24 +91,45 @@ const App: Component = () => {
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
 
+      if (!hasStarted()) {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          handleStart();
+        }
+        return;
+      }
+
       switch (e.code) {
         case 'Space':
           e.preventDefault();
           toggleMute();
+          setTimeout(() => {
+            if (playerState.isMuted) {
+              showHUD("🔇", "Muted");
+            } else {
+              showHUD("🔊", `Volume: ${playerState.volume}%`, playerState.volume);
+            }
+          }, 0);
           break;
         case 'ArrowUp':
           e.preventDefault();
-          setVolume(Math.min(100, playerState.volume + 5));
+          const nextVolUp = Math.min(100, playerState.volume + 5);
+          setVolume(nextVolUp);
+          showHUD("🔊", `Volume: ${nextVolUp}%`, nextVolUp);
           break;
         case 'ArrowDown':
           e.preventDefault();
-          setVolume(Math.max(0, playerState.volume - 5));
+          const nextVolDown = Math.max(0, playerState.volume - 5);
+          setVolume(nextVolDown);
+          showHUD("🔊", `Volume: ${nextVolDown}%`, nextVolDown);
           break;
         case 'KeyM':
           playRandomStation();
+          showHUD("📻", "Shuffling Station...");
           break;
         case 'KeyN':
           playRandomChannel(playerState.currentCategoryId);
+          showHUD("🎵", "Next Channel...");
           break;
       }
     };
@@ -158,6 +196,23 @@ const App: Component = () => {
           activeTheme={activeTheme()}
           onSelectTheme={handleThemeChange}
         />
+      </div>
+
+      {/* Keyboard Shortcuts HUD */}
+      <div 
+        class={`fixed top-8 left-1/2 -translate-x-1/2 z-[100] pointer-events-none transition-all duration-300 transform ${hud().visible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-4 scale-95'}`}
+      >
+        <div class="bg-black/60 backdrop-blur-xl border border-white/10 px-5 py-2.5 rounded-full flex items-center gap-3 shadow-2xl">
+          <span class="text-lg">{hud().icon}</span>
+          <div class="flex flex-col">
+            <span class="text-xs font-bold tracking-wider uppercase text-white font-mono">{hud().text}</span>
+            <Show when={hud().progress !== undefined}>
+              <div class="w-24 h-1 bg-white/20 rounded-full mt-1.5 overflow-hidden">
+                <div class="h-full bg-primary transition-all duration-100" style={{ width: `${hud().progress}%` }}></div>
+              </div>
+            </Show>
+          </div>
+        </div>
       </div>
     </div>
   );

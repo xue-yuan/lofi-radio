@@ -28,6 +28,9 @@ const WelcomeScreen: Component<WelcomeScreenProps> = (props) => {
             </span>
             <div class="absolute inset-0 rounded-full border border-white/30 animate-ping opacity-20"></div>
           </button>
+          <p class="text-white/30 text-xs font-mono mt-3 animate-pulse uppercase tracking-widest">
+            or Press Space
+          </p>
         </div>
         <p class="text-white/30 text-sm font-mono mt-8">
           Focus • Relax • Code
