@@ -11,6 +11,7 @@ declare global {
 
 const YouTubePlayer: Component = () => {
   let player: any;
+  let lastLoadedVideoId = "";
   const [isPlayerReady, setPlayerReady] = createSignal(false);
 
   onMount(() => {
@@ -54,6 +55,7 @@ const YouTubePlayer: Component = () => {
         'onError': onPlayerError,
       }
     });
+    lastLoadedVideoId = playerState.currentChannelId;
   };
 
   const onPlayerReady = (_event: any) => {
@@ -137,9 +139,12 @@ const YouTubePlayer: Component = () => {
 
   createEffect(() => {
     const stationId = playerState.currentChannelId;
-    if (player && player.loadVideoById && stationId) {
-      setLoading(true);
-      playerState.isPlaying ? player.loadVideoById(stationId) : player.cueVideoById(stationId);
+    if (isPlayerReady() && player && player.loadVideoById && stationId) {
+      if (stationId !== lastLoadedVideoId) {
+        setLoading(true);
+        playerState.isPlaying ? player.loadVideoById(stationId) : player.cueVideoById(stationId);
+        lastLoadedVideoId = stationId;
+      }
     }
   });
 
