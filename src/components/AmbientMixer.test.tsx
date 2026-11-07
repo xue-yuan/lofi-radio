@@ -1,7 +1,27 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { render, screen, cleanup, fireEvent } from "@solidjs/testing-library";
+import type { EngineState } from "../lib/audio/ambientEngine";
+
+const engineUpdates = vi.hoisted(() => [] as EngineState[]);
+
+vi.mock("../lib/audio/ambientEngine", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../lib/audio/ambientEngine")>()),
+  createAmbientEngine: () => ({
+    update: (state: EngineState) => engineUpdates.push(state),
+    dispose: () => {},
+  }),
+}));
+
 import AmbientMixer from "./AmbientMixer";
-import { clearMix } from "../stores/ambientStore";
+import {
+  cancelSleepTimer,
+  clearMix,
+  customPresets,
+  deleteCustomPreset,
+  isAsleep,
+  setAmbientMaster,
+  wakeAmbient,
+} from "../stores/ambientStore";
 import { setMusicMuted, setMuted, playerState } from "../stores/playerStore";
 import { PRESETS, presetMix } from "../ambient";
 
@@ -12,11 +32,18 @@ const percentFor = (name: string) => {
   return row.textContent?.match(/(\d+)%/)?.[1];
 };
 
+const lastEngineState = () => engineUpdates[engineUpdates.length - 1];
+
 beforeEach(() => {
   localStorage.clear();
   clearMix();
+  setAmbientMaster(1);
+  for (const preset of customPresets()) deleteCustomPreset(preset.id);
+  cancelSleepTimer();
+  wakeAmbient();
   setMusicMuted(false);
   setMuted(false);
+  engineUpdates.length = 0;
 });
 afterEach(cleanup);
 
@@ -134,42 +161,137 @@ describe("ambient-only toggle", () => {
 });
 
 describe("audio routing", () => {
-  const captureAudio = () => {
-    const created: HTMLAudioElement[] = [];
-    const RealAudio = window.Audio;
-    vi.stubGlobal(
-      "Audio",
-      class extends RealAudio {
-        constructor(src?: string) {
-          super(src);
-          created.push(this as unknown as HTMLAudioElement);
-        }
-      },
-    );
-    return created;
-  };
-
-  afterEach(() => vi.unstubAllGlobals());
-
   it("keeps the ambient mix audible while the music is muted", () => {
-    const created = captureAudio();
     render(() => <AmbientMixer isOpen onClose={() => {}} />);
 
     fireEvent.input(slider("Rain"), { target: { value: "0.7" } });
     fireEvent.click(screen.getByLabelText(/Ambient Only/i));
 
-    const loudest = Math.max(...created.map((a) => a.volume));
-    expect(loudest).toBeCloseTo(0.7, 2);
+    expect(lastEngineState().levels.rain).toBeCloseTo(0.7, 2);
+    expect(lastEngineState().master).toBe(1);
   });
 
   it("still silences the ambient mix on master mute", () => {
-    const created = captureAudio();
     render(() => <AmbientMixer isOpen onClose={() => {}} />);
 
     fireEvent.input(slider("Rain"), { target: { value: "0.7" } });
     setMuted(true);
 
-    expect(Math.max(...created.map((a) => a.volume))).toBe(0);
+    expect(lastEngineState().master).toBe(0);
     setMuted(false);
+    expect(lastEngineState().master).toBe(1);
+  });
+
+  it("applies the ambient master volume and remembers it", () => {
+    render(() => <AmbientMixer isOpen onClose={() => {}} />);
+
+    fireEvent.input(screen.getByLabelText("Ambient master volume"), {
+      target: { value: "0.4" },
+    });
+
+    expect(lastEngineState().master).toBeCloseTo(0.4, 2);
+    expect(localStorage.getItem("lofi_ambient_master")).toBe("0.4");
+  });
+});
+
+describe("custom presets", () => {
+  const saveAs = (name: string) => {
+    fireEvent.click(screen.getByRole("button", { name: "+ Save mix" }));
+    fireEvent.input(screen.getByLabelText("Preset name"), { target: { value: name } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+  };
+
+  it("only offers saving once something is playing", () => {
+    render(() => <AmbientMixer isOpen onClose={() => {}} />);
+    expect(screen.queryByRole("button", { name: "+ Save mix" })).not.toBeInTheDocument();
+
+    fireEvent.input(slider("Rain"), { target: { value: "0.3" } });
+    expect(screen.getByRole("button", { name: "+ Save mix" })).toBeInTheDocument();
+  });
+
+  it("saves the current mix as a chip that restores it", () => {
+    render(() => <AmbientMixer isOpen onClose={() => {}} />);
+    fireEvent.input(slider("Rain"), { target: { value: "0.3" } });
+    fireEvent.input(slider("Vinyl"), { target: { value: "0.6" } });
+    saveAs("My Desk");
+
+    const chip = screen.getByRole("button", { name: "My Desk" });
+    expect(chip).toHaveAttribute("aria-pressed", "true");
+
+    fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+    fireEvent.click(chip);
+    expect(Number(slider("Rain").value)).toBeCloseTo(0.3, 2);
+    expect(Number(slider("Vinyl").value)).toBeCloseTo(0.6, 2);
+
+    const stored = JSON.parse(localStorage.getItem("lofi_ambient_presets")!);
+    expect(stored).toEqual([expect.objectContaining({ name: "My Desk" })]);
+  });
+
+  it("deletes a saved preset", () => {
+    render(() => <AmbientMixer isOpen onClose={() => {}} />);
+    fireEvent.input(slider("Rain"), { target: { value: "0.3" } });
+    saveAs("Temp");
+
+    fireEvent.click(screen.getByRole("button", { name: "Delete preset Temp" }));
+
+    expect(screen.queryByRole("button", { name: "Temp" })).not.toBeInTheDocument();
+    expect(JSON.parse(localStorage.getItem("lofi_ambient_presets")!)).toEqual([]);
+  });
+
+  it("cancels naming with Escape", () => {
+    render(() => <AmbientMixer isOpen onClose={() => {}} />);
+    fireEvent.input(slider("Rain"), { target: { value: "0.3" } });
+    fireEvent.click(screen.getByRole("button", { name: "+ Save mix" }));
+
+    fireEvent.keyDown(screen.getByLabelText("Preset name"), { key: "Escape" });
+
+    expect(screen.queryByLabelText("Preset name")).not.toBeInTheDocument();
+  });
+});
+
+describe("fade-out timer", () => {
+  afterEach(() => vi.useRealTimers());
+
+  it("fades the ambient mix out when the timer ends, then resumes on demand", () => {
+    vi.useFakeTimers();
+    render(() => <AmbientMixer isOpen onClose={() => {}} />);
+    fireEvent.input(slider("Rain"), { target: { value: "0.5" } });
+
+    fireEvent.click(screen.getByRole("button", { name: /in 15 minutes/ }));
+    expect(screen.getByText("Fade out · 15m")).toBeInTheDocument();
+
+    vi.advanceTimersByTime(15 * 60_000);
+
+    expect(isAsleep()).toBe(true);
+    expect(lastEngineState().master).toBe(0);
+    expect(lastEngineState().masterFadeSeconds).toBe(30);
+    expect(Number(slider("Rain").value)).toBeCloseTo(0.5, 2);
+
+    fireEvent.click(screen.getByRole("button", { name: "Resume" }));
+    expect(lastEngineState().master).toBe(1);
+  });
+
+  it("cancels when the active duration is pressed again", () => {
+    render(() => <AmbientMixer isOpen onClose={() => {}} />);
+    const thirty = screen.getByRole("button", { name: /in 30 minutes/ });
+
+    fireEvent.click(thirty);
+    expect(thirty).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(thirty);
+    expect(thirty).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByText("Fade out")).toBeInTheDocument();
+  });
+
+  it("wakes up when the mix is touched", () => {
+    vi.useFakeTimers();
+    render(() => <AmbientMixer isOpen onClose={() => {}} />);
+    fireEvent.input(slider("Rain"), { target: { value: "0.5" } });
+    fireEvent.click(screen.getByRole("button", { name: /in 15 minutes/ }));
+    vi.advanceTimersByTime(15 * 60_000);
+
+    fireEvent.input(slider("Rain"), { target: { value: "0.6" } });
+
+    expect(isAsleep()).toBe(false);
+    expect(lastEngineState().master).toBe(1);
   });
 });

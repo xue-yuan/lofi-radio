@@ -20,6 +20,8 @@ import {
   type ShortcutAction,
 } from "./lib/shortcuts";
 import { readString, writeString } from "./lib/storage";
+import { IMMERSIVE_MODE_INFO, nextImmersiveMode, type ImmersiveMode } from "./lib/immersive";
+import { createScreenWakeLock } from "./lib/wakeLock";
 import { ambientMix } from "./stores/ambientStore";
 import { DEFAULT_THEME, isValidTheme } from "./themes";
 import { initialShareState } from "./lib/initialShareState";
@@ -28,6 +30,7 @@ import YouTubePlayer from "./components/YouTubePlayer";
 import ControlPanel from "./components/ControlPanel";
 import WidgetPanel from "./components/WidgetPanel";
 import DigitalClock from "./components/DigitalClock";
+import ClockScreen from "./components/ClockScreen";
 import WelcomeScreen from "./components/WelcomeScreen";
 import Sidebar from "./components/Sidebar";
 import InfoPanel, { type InfoTab } from "./components/InfoPanel";
@@ -50,7 +53,9 @@ const App: Component = () => {
   const [activePanel, setActivePanel] = createSignal<ActivePanel>(null);
   const [isWidgetsOpen, setIsWidgetsOpen] = createSignal(false);
   const [isIdle, setIsIdle] = createSignal(false);
-  const [isImmersiveEnabled, setIsImmersiveEnabled] = createSignal(false);
+  const [immersiveMode, setImmersiveMode] = createSignal<ImmersiveMode>("off");
+  const isImmersiveEnabled = () => immersiveMode() !== "off";
+  const isClockMode = () => immersiveMode() === "clock";
   const [infoTab, setInfoTab] = createSignal<InfoTab>("community");
   const storedTheme = readString(THEME_KEY, DEFAULT_THEME);
   const [activeTheme, setActiveTheme] = createSignal(
@@ -92,11 +97,14 @@ const App: Component = () => {
     writeString(THEME_KEY, theme);
   };
 
-  const toggleImmersive = () => {
-    const next = !isImmersiveEnabled();
-    setIsImmersiveEnabled(next);
-    showHUD(next ? "🌙" : "👁️", next ? "Immersive On" : "Immersive Off");
+  const cycleImmersive = () => {
+    const next = nextImmersiveMode(immersiveMode());
+    setImmersiveMode(next);
+    const { icon, label } = IMMERSIVE_MODE_INFO[next];
+    showHUD(icon, label);
   };
+
+  createScreenWakeLock(isClockMode);
 
   const toggleShortcutsPanel = () => {
     if (activePanel() === "info" && infoTab() === "shortcuts") {
@@ -137,8 +145,8 @@ const App: Component = () => {
         playRandomChannel(playerState.currentCategoryId);
         showHUD("🎵", "Next Channel...");
         break;
-      case "toggleImmersive":
-        toggleImmersive();
+      case "cycleImmersive":
+        cycleImmersive();
         break;
       case "toggleAmbientOnly":
         toggleMusicMuted();
@@ -230,7 +238,7 @@ const App: Component = () => {
     const found = findChannel(playerState.currentChannelId);
     document.title = found
       ? `${found.channel.title} - Lofi Radio`
-      : "Lofi Radio - Your Personal Space for Focus, Relaxation, and Chill Beats";
+      : "Lofi Radio – Chill Beats for Focus & Relaxation";
   });
 
   const idleClass = (extra = "") =>
@@ -255,11 +263,12 @@ const App: Component = () => {
       </div>
       <YouTubePlayer />
       <div class="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_center,transparent_55%,rgba(0,0,0,0.8)_100%)]" />
+      <ClockScreen active={isClockMode()} />
       <div class={`absolute top-6 left-6 md:top-10 md:left-10 z-10 ${idleClass()}`}>
         <Header />
       </div>
       <div
-        class={`absolute bottom-64 left-6 md:bottom-64 md:left-10 lg:bottom-32 z-10 transition-opacity duration-1000 ${isIdle() ? "opacity-0" : "opacity-80"}`}
+        class={`absolute bottom-64 left-6 md:bottom-64 md:left-10 lg:bottom-32 z-10 transition-opacity duration-1000 ${isIdle() || isClockMode() ? "opacity-0" : "opacity-80"}`}
       >
         <DigitalClock />
       </div>
@@ -268,8 +277,8 @@ const App: Component = () => {
           onToggleAmbient={() => togglePanel("ambient")}
           isAmbientOpen={activePanel() === "ambient"}
           onCloseAmbient={() => setActivePanel(null)}
-          isImmersive={isImmersiveEnabled()}
-          onToggleImmersive={toggleImmersive}
+          immersiveMode={immersiveMode()}
+          onCycleImmersive={cycleImmersive}
           onToggleStationSelector={() => togglePanel("station")}
           isStationSelectorOpen={activePanel() === "station"}
           onCloseStationSelector={() => setActivePanel(null)}

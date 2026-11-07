@@ -32,7 +32,7 @@ describe("resolveShortcut", () => {
       ["ArrowDown", { type: "volumeDown" }],
       ["KeyM", { type: "randomStation" }],
       ["KeyN", { type: "randomChannel" }],
-      ["KeyF", { type: "toggleImmersive" }],
+      ["KeyF", { type: "cycleImmersive" }],
       ["KeyA", { type: "toggleAmbientOnly" }],
     ];
     for (const [code, expected] of cases) {

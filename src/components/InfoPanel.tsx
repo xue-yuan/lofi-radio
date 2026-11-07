@@ -16,7 +16,7 @@ export const SHORTCUTS: { keys: string[]; label: string }[] = [
   { keys: ["↓"], label: "Volume Down" },
   { keys: ["N"], label: "Random Channel" },
   { keys: ["M"], label: "Random Station" },
-  { keys: ["F"], label: "Immersive Mode" },
+  { keys: ["F"], label: "Immersive / Clock Mode" },
   { keys: ["A"], label: "Ambient Only" },
   { keys: ["?"], label: "This Shortcut List" },
   { keys: ["Esc"], label: "Close Panel" },

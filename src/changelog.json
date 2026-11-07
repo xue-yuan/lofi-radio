@@ -1,5 +1,22 @@
 [
   {
+    "version": "1.7.0",
+    "date": "2026-11-07",
+    "changes": [
+      "Clock Mode: Immersive mode has a new third step, a full-screen clock on black showing the current track. It drifts slightly every minute to protect OLED screens and keeps the screen awake. Press F or the immersive button to cycle Off → Immersive → Clock.",
+      "Ambient: Rebuilt the playback engine on the Web Audio API. Loops are now seamless, and the volume sliders finally work on iPhone and iPad.",
+      "Ambient: Sounds fade in and out when switched on or off or when changing presets, and the volume curve feels more even across the slider.",
+      "Ambient: Sound files only download the first time a sound is turned up, so the page loads lighter.",
+      "Ambient: Added Vinyl, Clock, White Noise, Pink Noise and Brown Noise. They are generated in the browser, so there is nothing to download.",
+      "Ambient: Added Vinyl Rain, Study Hall and Deep Focus presets.",
+      "Ambient: Save up to 8 of your own mixes as custom presets.",
+      "Ambient: Added a master volume for the ambient mix, separate from the music.",
+      "Ambient: Added a fade-out timer (15 min, 30 min, 1 h, 1.5 h) that gently fades the ambient mix out over 30 seconds.",
+      "Sharing: New link preview image, plus a clearer page title and description.",
+      "App: Adding Lofi Radio to your home screen now shows the right name and icons, with a dark theme color."
+    ]
+  },
+  {
     "version": "1.6.0",
     "date": "2026-08-23",
     "changes": [

@@ -74,10 +74,23 @@ describe("catalog integrity", () => {
     expect(new Set(SOUND_IDS).size).toBe(SOUNDS.length);
   });
 
-  it("points every sound at a /sounds/ file", () => {
-    for (const sound of SOUNDS) {
-      expect(sound.url).toMatch(/^\/sounds\/.+\.(mp3|ogg|m4a|webm)$/);
+  it("points every file-backed sound at a /sounds/ file", () => {
+    const fileUrl = /^\/sounds\/.+\.(mp3|ogg|m4a|webm)$/;
+    for (const { source } of SOUNDS) {
+      if (source.kind === "loop") expect(source.url).toMatch(fileUrl);
+      if (source.kind === "scatter") {
+        expect(source.urls.length).toBeGreaterThan(0);
+        for (const url of source.urls) expect(url).toMatch(fileUrl);
+        expect(source.gapSeconds[0]).toBeLessThanOrEqual(source.gapSeconds[1]);
+      }
     }
+  });
+
+  it("generates the synthesised sounds without downloading anything", () => {
+    const generatedSounds = SOUNDS.filter((s) => s.source.kind === "generated");
+    expect(generatedSounds.map((s) => s.id)).toEqual(
+      expect.arrayContaining(["whiteNoise", "pinkNoise", "brownNoise", "clock", "vinyl"]),
+    );
   });
 
   it("starts silent", () => {

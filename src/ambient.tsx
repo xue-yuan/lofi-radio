@@ -1,10 +1,16 @@
 import { For, type Component } from "solid-js";
+import { clockTicks, noise, vinylCrackle } from "./lib/audio/generators";
+
+export type SoundSource =
+  | { kind: "loop"; url: string }
+  | { kind: "scatter"; urls: string[]; gapSeconds: [number, number] }
+  | { kind: "generated"; generate: (sampleRate: number) => Float32Array[] };
 
 export interface SoundTrack {
   id: string;
   name: string;
   icon: Component;
-  url: string;
+  source: SoundSource;
 }
 
 export interface AmbientPreset {
@@ -63,13 +69,56 @@ export const AMBIENT_ICONS = {
   whiteNoise: svg("M3 12h2l3-7v14l3-7h2", "M15 9a4 4 0 010 6", "M18 6a8 8 0 010 12"),
   clock: svg("M12 21a9 9 0 100-18 9 9 0 000 18z", "M12 7v5l3 2"),
   library: svg("M4 4h6a2 2 0 012 2v14a2 2 0 00-2-2H4z", "M20 4h-6a2 2 0 00-2 2v14a2 2 0 012-2h6z"),
+  vinyl: svg("M12 21a9 9 0 100-18 9 9 0 000 18z", "M12 15a3 3 0 100-6 3 3 0 000 6z", "M12 12h.01"),
 } satisfies Record<string, Component>;
 
+const loop = (url: string): SoundSource => ({ kind: "loop", url });
+
+const generated = (generate: (sampleRate: number) => Float32Array[]): SoundSource => ({
+  kind: "generated",
+  generate,
+});
+
 export const SOUNDS: SoundTrack[] = [
-  { id: "rain", name: "Rain", icon: AMBIENT_ICONS.rain, url: "/sounds/rain.mp3" },
-  { id: "fire", name: "Campfire", icon: AMBIENT_ICONS.fire, url: "/sounds/campfire.mp3" },
-  { id: "birds", name: "Birds", icon: AMBIENT_ICONS.birds, url: "/sounds/birds.mp3" },
-  { id: "thunder", name: "Thunder", icon: AMBIENT_ICONS.thunder, url: "/sounds/thunder.mp3" },
+  { id: "rain", name: "Rain", icon: AMBIENT_ICONS.rain, source: loop("/sounds/rain.mp3") },
+  { id: "fire", name: "Campfire", icon: AMBIENT_ICONS.fire, source: loop("/sounds/campfire.mp3") },
+  { id: "birds", name: "Birds", icon: AMBIENT_ICONS.birds, source: loop("/sounds/birds.mp3") },
+  {
+    id: "thunder",
+    name: "Thunder",
+    icon: AMBIENT_ICONS.thunder,
+    source: loop("/sounds/thunder.mp3"),
+  },
+  {
+    id: "vinyl",
+    name: "Vinyl",
+    icon: AMBIENT_ICONS.vinyl,
+    source: generated((sampleRate) => vinylCrackle(sampleRate)),
+  },
+  {
+    id: "clock",
+    name: "Clock",
+    icon: AMBIENT_ICONS.clock,
+    source: generated((sampleRate) => clockTicks(sampleRate)),
+  },
+  {
+    id: "whiteNoise",
+    name: "White Noise",
+    icon: AMBIENT_ICONS.whiteNoise,
+    source: generated((sampleRate) => noise("white", sampleRate)),
+  },
+  {
+    id: "pinkNoise",
+    name: "Pink Noise",
+    icon: AMBIENT_ICONS.whiteNoise,
+    source: generated((sampleRate) => noise("pink", sampleRate)),
+  },
+  {
+    id: "brownNoise",
+    name: "Brown Noise",
+    icon: AMBIENT_ICONS.whiteNoise,
+    source: generated((sampleRate) => noise("brown", sampleRate)),
+  },
 ];
 
 export const SOUND_IDS = SOUNDS.map((s) => s.id);
@@ -79,6 +128,9 @@ export const PRESETS: AmbientPreset[] = [
   { id: "forest-morning", name: "Forest Morning", mix: { birds: 0.5, rain: 0.12 } },
   { id: "campfire", name: "Campfire", mix: { fire: 0.6, birds: 0.15 } },
   { id: "storm", name: "Storm", mix: { rain: 0.75, thunder: 0.6 } },
+  { id: "vinyl-rain", name: "Vinyl Rain", mix: { vinyl: 0.6, rain: 0.45 } },
+  { id: "study-hall", name: "Study Hall", mix: { clock: 0.45, pinkNoise: 0.4 } },
+  { id: "deep-focus", name: "Deep Focus", mix: { brownNoise: 0.7 } },
 ];
 
 export const silentMix = (): VolumeMap => Object.fromEntries(SOUNDS.map((s) => [s.id, 0]));

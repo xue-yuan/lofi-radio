@@ -7,7 +7,7 @@ export type ShortcutAction =
   | { type: "volumeDown" }
   | { type: "randomStation" }
   | { type: "randomChannel" }
-  | { type: "toggleImmersive" }
+  | { type: "cycleImmersive" }
   | { type: "toggleAmbientOnly" }
   | { type: "toggleShortcuts" }
   | { type: "closePanel" }
@@ -60,7 +60,7 @@ export const resolveShortcut = (e: KeyLike, context: ShortcutContext): ShortcutA
     case "KeyN":
       return { type: "randomChannel" };
     case "KeyF":
-      return { type: "toggleImmersive" };
+      return { type: "cycleImmersive" };
     case "KeyA":
       return { type: "toggleAmbientOnly" };
     default:

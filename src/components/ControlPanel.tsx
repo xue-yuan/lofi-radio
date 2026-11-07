@@ -15,6 +15,7 @@ import {
   playRandomChannel,
 } from "../stores/playerStore";
 import { STATION_CATEGORIES } from "../stations";
+import { IMMERSIVE_MODE_INFO, type ImmersiveMode } from "../lib/immersive";
 
 const VolumeUpIcon = () => (
   <svg
@@ -208,6 +209,24 @@ const ImmersiveIcon = () => (
   </svg>
 );
 
+const ClockModeIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    class="h-5 w-5"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    aria-hidden="true"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
+  </svg>
+);
+
 const WidgetIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -251,8 +270,8 @@ interface ControlPanelProps {
   isAmbientOpen?: boolean;
   onCloseAmbient?: () => void;
 
-  isImmersive?: boolean;
-  onToggleImmersive?: () => void;
+  immersiveMode?: ImmersiveMode;
+  onCycleImmersive?: () => void;
 
   onToggleStationSelector?: () => void;
   isStationSelectorOpen?: boolean;
@@ -324,6 +343,8 @@ const ControlPanel: Component<ControlPanelProps> = (props) => {
 
   const volumeLabel = () =>
     playerState.isMuted || playerState.volume === 0 ? <MutedIcon /> : <VolumeIcon />;
+
+  const immersiveMode = () => props.immersiveMode ?? "off";
 
   const panelButton = (active: boolean) =>
     `btn btn-circle btn-ghost btn-sm ${
@@ -492,16 +513,18 @@ const ControlPanel: Component<ControlPanelProps> = (props) => {
           <div class="flex items-center gap-0.5">
             <button
               class={`btn btn-circle btn-ghost btn-sm ${
-                props.isImmersive
+                immersiveMode() !== "off"
                   ? "text-primary bg-primary/15"
                   : "text-white/40 hover:text-white hover:bg-white/10"
               }`}
-              onClick={() => props.onToggleImmersive?.()}
-              title={props.isImmersive ? "Disable Immersive Mode" : "Enable Immersive Mode"}
-              aria-label={props.isImmersive ? "Disable immersive mode" : "Enable immersive mode"}
-              aria-pressed={props.isImmersive}
+              onClick={() => props.onCycleImmersive?.()}
+              title={`${IMMERSIVE_MODE_INFO[immersiveMode()].label} — click to switch`}
+              aria-label={`Immersive mode: ${IMMERSIVE_MODE_INFO[immersiveMode()].label}. Switch to the next mode`}
+              aria-pressed={immersiveMode() !== "off"}
             >
-              <ImmersiveIcon />
+              <Show when={immersiveMode() === "clock"} fallback={<ImmersiveIcon />}>
+                <ClockModeIcon />
+              </Show>
             </button>
             <button
               class="btn btn-circle btn-ghost btn-sm text-white/40 hover:text-white hover:bg-white/10"
