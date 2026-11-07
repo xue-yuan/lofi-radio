@@ -27,3 +27,5 @@ note.md
 
 reports/*.md
 !reports/.gitkeep
+
+.vscode/
