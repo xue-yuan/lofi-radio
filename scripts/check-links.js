@@ -25,7 +25,7 @@ async function checkViaDataApi(ids) {
 
   for (const batch of chunk(ids, BATCH_SIZE)) {
     const url = new URL("https://www.googleapis.com/youtube/v3/videos");
-    url.searchParams.set("part", "status,snippet");
+    url.searchParams.set("part", "status,snippet,liveStreamingDetails");
     url.searchParams.set("id", batch.join(","));
     url.searchParams.set("key", API_KEY);
 
@@ -49,6 +49,14 @@ async function checkViaDataApi(ids) {
         results.set(item.id, { ok: false, reason: "private video" });
       } else if (status.embeddable === false) {
         results.set(item.id, { ok: false, reason: "embedding disabled by the uploader" });
+      } else if (item.snippet?.liveBroadcastContent !== "live") {
+        const endedAt = item.liveStreamingDetails?.actualEndTime;
+        results.set(item.id, {
+          ok: false,
+          reason: endedAt
+            ? `live stream ended on ${endedAt.slice(0, 10)}`
+            : `not live (${item.snippet?.liveBroadcastContent ?? "unknown"})`,
+        });
       } else {
         results.set(item.id, { ok: true });
       }
@@ -105,9 +113,9 @@ function buildReport(brokenEntries, method, total) {
   if (method === "oEmbed") {
     lines.push(
       "",
-      "> ⚠️ Running without `YOUTUBE_API_KEY`. oEmbed cannot detect videos that",
-      "> disallow embedding, which surface as player errors 101/150. Set the",
-      "> secret to enable the full check.",
+      "> ⚠️ Running without `YOUTUBE_API_KEY`. oEmbed cannot detect ended live",
+      "> streams or videos that disallow embedding (player errors 101/150). Set",
+      "> the secret to enable the full check.",
     );
   }
 
@@ -129,7 +137,7 @@ async function run() {
       console.warn("⚠️ Falling back to oEmbed after a Data API failure.");
     } else {
       console.warn("⚠️ YOUTUBE_API_KEY is not set; falling back to oEmbed.");
-      console.warn("   oEmbed cannot detect embedding restrictions (errors 101/150).");
+      console.warn("   oEmbed cannot detect ended live streams or embedding restrictions.");
     }
     method = "oEmbed";
     results = await checkViaOembed(ids);
