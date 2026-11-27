@@ -1,4 +1,3 @@
 # Lofi Radio
 
-Lofi music for working, study, and relaxing. Enjoy 😌
-Website: [https://lofi.tw](https://lofi.tw)
+It's a [radio station](https://lofi.tw) for working, studying, and relaxing. Enjoy 😌
